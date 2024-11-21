@@ -1,5 +1,7 @@
 package org.example.springmvc.security;
 
+import lombok.*;
+import org.example.springmvc.security.service.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.method.configuration.*;
@@ -15,10 +17,14 @@ import javax.sql.*;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@AllArgsConstructor
 public class SecurityConfig {
-    @Autowired
+
     private PasswordEncoder passwordEncoder;
+    private UserDetailServiceImpl userDetailServiceImpl;
     //JDBC Authentication :
+
+    //@Bean
     public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource){
         return new JdbcUserDetailsManager(dataSource);
     }
@@ -27,7 +33,7 @@ public class SecurityConfig {
 
     // InMemory Authentication
     // preciser en memoir les utilisateurs qui en le droit d'acceder
-//    @Bean
+    //@Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(){
         return new InMemoryUserDetailsManager(
                 User.withUsername("user").password(passwordEncoder.encode("123")).roles("USER").build(),
@@ -46,7 +52,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests().requestMatchers("/user/**").hasRole("USER");
         httpSecurity.authorizeHttpRequests().requestMatchers("/admin/**").hasRole("ADMIN");
         httpSecurity.authorizeHttpRequests().anyRequest().authenticated();
+        httpSecurity.userDetailsService(userDetailServiceImpl);
         httpSecurity.exceptionHandling().accessDeniedPage("/notAuthorized");
+
         return httpSecurity.build();
     }
 }

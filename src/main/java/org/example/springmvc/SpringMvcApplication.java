@@ -2,6 +2,7 @@ package org.example.springmvc;
 
 import org.example.springmvc.entities.*;
 import org.example.springmvc.repository.*;
+import org.example.springmvc.security.service.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,7 +31,11 @@ public class SpringMvcApplication implements CommandLineRunner {
             patientRepository.save(new Patient(null, "Laila", new Date(), false, 123));
         };
     }
-    @Bean
+    //@Bean
+    public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
+        return new JdbcUserDetailsManager(dataSource);
+    }
+    //@Bean
     CommandLineRunner commandLineRunner(JdbcUserDetailsManager jdbcUserDetailsManager){
         PasswordEncoder passwordEncoder = passwordEncoder();
         return args -> {
@@ -45,19 +50,27 @@ public class SpringMvcApplication implements CommandLineRunner {
             if (admin == null) {
                 jdbcUserDetailsManager.createUser(User.withUsername("admin").
                         password(passwordEncoder.encode("admin")).
-                        roles("USER", "ADMIN").build());
+                        roles("USER","ADMIN").build());
             }
 
         };
+    }
+    //@Bean
+    CommandLineRunner commandLineRunnerUserDetails(AccountService accountService){
+        return args -> {
+            accountService.addNewRole("USER");
+            accountService.addNewRole("ADMIN");
+            accountService.addNewUser("user","123","user@gmail.com","123");
+            accountService.addNewUser("admin","admin","admin@gmail.com","admin");
+            accountService.addRoleToUser("user","USER");
+            accountService.addRoleToUser("admin","ADMIN");
+        }   ;
     }
 @Bean
     PasswordEncoder passwordEncoder (){
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
-    }
+
 
 
     @Override
