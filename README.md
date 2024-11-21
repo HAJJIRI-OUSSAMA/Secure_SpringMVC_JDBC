@@ -107,5 +107,4 @@ src/main/java/org/example/springmvc
 
 This project is open-source and available under the [MIT License](LICENSE).
 =======
-# Secure_SpringMVC_JDBC
->>>>>>> 5d5e37ea8dccc64ccaaabb05b64261c55c6f9b6c
+
